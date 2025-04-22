@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NFT Рулетка</title>
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #121212;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+    }
+    .card {
+      background: #1e1e1e;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    button {
+      background: #2a85ff;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      padding: 12px 20px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+    .balance {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="ton-connect"></div>
+    <div class="balance" id="balance">Баланс: —</div>
+
+    <!-- Лобби -->
+    <div class="card" id="lobby">
+      <h2>🎰 NFT Рулетка</h2>
+      <p>Выбери количество спинов:</p>
+      <div>
+        <button onclick="selectSpins(1)">1 Спин</button>
+        <button onclick="selectSpins(3)">3 Спина</button>
+        <button onclick="selectSpins(5)">5 Спинов</button>
+      </div>
+      <p id="spinsSelected">Не выбрано</p>
+      <button onclick="startGame()">Играть</button>
+    </div>
+
+    <!-- Рулетка -->
+    <div class="card hidden" id="roulette">
+      <h3>Спинов осталось: <span id="spinsLeft"></span></h3>
+      <p>🎡 Крутим рулетку...</p>
+      <button onclick="spin()">Крутить</button>
+      <p id="result"></p>
+    </div>
+  </div>
+
+  <script>
+    let spins = 0;
+    let spinsLeft = 0;
+
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://gamenft.ru/tonconnect-manifest.json', // заменишь позже
+      buttonRootId: 'ton-connect'
+    });
+
+    async function updateBalance() {
+      const connectedWallet = await tonConnectUI.wallet;
+      if (!connectedWallet) return;
+
+      const address = connectedWallet.account.address;
+      try {
+        const res = await fetch(`https://tonapi.io/v1/account/${address}`);
+        const data = await res.json();
+        const balanceTON = data.balance / 1e9;
+        document.getElementById('balance').innerText = `Баланс: ${balanceTON.toFixed(2)} TON`;
+      } catch (err) {
+        console.error('Ошибка при получении баланса', err);
+      }
+    }
+
+    tonConnectUI.onStatusChange(async wallet => {
+      if (wallet) {
+        await updateBalance();
+      } else {
+        document.getElementById('balance').innerText = 'Баланс: —';
+      }
+    });
+
+    function selectSpins(count) {
+      spins = count;
+      document.getElementById('spinsSelected').innerText = `Выбрано: ${count}`;
+    }
+
+    function startGame() {
+      if (spins === 0) {
+        alert('Выбери количество спинов!');
+        return;
+      }
+      spinsLeft = spins;
+      document.getElementById('lobby').classList.add('hidden');
+      document.getElementById('roulette').classList.remove('hidden');
+      document.getElementById('spinsLeft').innerText = spinsLeft;
+    }
+
+    function spin() {
+      if (spinsLeft <= 0) return;
+
+      const prizes = ['🔥 NFT', '🎁 Подарок', '💎 Ничего', '🚀 Бонус', '🐱 Мем NFT'];
+      const result = prizes[Math.floor(Math.random() * prizes.length)];
+
+      document.getElementById('result').innerText = `Выпало: ${result}`;
+      spinsLeft -= 1;
+      document.getElementById('spinsLeft').innerText = spinsLeft;
+
+      if (spinsLeft === 0) {
+        alert('Все спины закончились!');
+        document.getElementById('result').innerText += '\nИгра окончена.';
+      }
+    }
+  </script>
+</body>
+</html>
