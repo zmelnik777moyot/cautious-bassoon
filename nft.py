@@ -76,6 +76,8 @@ if __name__ == "__main__":
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.run_polling()
-site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 8080)))
-await site.start()
+
+async def main():
+    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 8080)))
+    await site.start()
 print(f"Listening on port {os.getenv('PORT', 8080)}")
