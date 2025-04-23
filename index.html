@@ -1,131 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFT Roulette with TON</title>
-  <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
+  <title>Fortuna Stars</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
+      background: #101010;
+      color: white;
+      margin: 0;
+      padding: 0;
       text-align: center;
-      background-color: #121212;
-      color: #fff;
     }
     .container {
-      max-width: 600px;
-      margin: 40px auto;
-    }
-    .wallet-info {
-      margin-top: 20px;
-    }
-    #roulette {
-      margin: 20px auto;
       padding: 20px;
-      background: #1f1f1f;
+    }
+    .card {
+      background: #1e1e1e;
       border-radius: 12px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    .spin-button {
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #00aaff;
-      border: none;
+    button {
+      padding: 12px 20px;
+      background: #2a85ff;
       color: white;
-      border-radius: 8px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
       cursor: pointer;
-    }
-    .ton-button {
-      background-color: #28c7fa;
       margin-top: 10px;
     }
     .balance {
       font-size: 18px;
-      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+    .btn-row {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+    .btn-row button {
+      flex: 1;
+      margin: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🎰 NFT Roulette</h1>
-    <div id="ton-space"></div>
-    <div class="wallet-info">
-      <button id="connect-button" class="spin-button ton-button">🔌 Connect TON Wallet</button>
-      <div id="wallet-address"></div>
-      <div id="balance" class="balance">Balance: —</div>
+    <div class="card">
+      <h2>Добро пожаловать!</h2>
+      <div class="balance">
+        ⭐ Баланс: <span id="balance">0</span> звёзд
+      </div>
+      <div class="btn-row">
+        <button onclick="addStars(10)">+ Пополнить</button>
+        <button onclick="playGame()">🎮 Играть</button>
+        <button onclick="showProfile()">👤 Профиль</button>
+      </div>
     </div>
-    <div id="lobby">
-      <h2>Choose Your Spins</h2>
-      <select id="spin-count">
-        <option value="1">1 Spin</option>
-        <option value="3">3 Spins</option>
-        <option value="5">5 Spins</option>
-      </select>
-      <button class="spin-button" onclick="startGame()">Enter Game</button>
-    </div>
-    <div id="roulette" style="display: none">
-      <h2>Spin the Wheel!</h2>
-      <button class="spin-button" onclick="spinRoulette()">Spin 🎲</button>
-      <div id="result"></div>
+    <div class="card" id="result-card" style="display: none;">
+      <h3>🎉 Результат игры</h3>
+      <p id="game-result"></p>
+      <button onclick="backToMain()">🔙 Назад</button>
     </div>
   </div>
-  
+
   <script>
-    const connectButton = document.getElementById("connect-button");
-    const walletAddressDiv = document.getElementById("wallet-address");
-    const balanceDiv = document.getElementById("balance");
-    const rouletteSection = document.getElementById("roulette");
-    const lobbySection = document.getElementById("lobby");
+    const tg = window.Telegram.WebApp;
+    tg.ready();
 
-    let tonConnect = new TON_CONNECT.TonConnect();
+    let balance = 0;
 
-    connectButton.addEventListener("click", async () => {
-      try {
-        const connected = await tonConnect.connectWallet();
-        const account = await tonConnect.getWallet();
-
-        if (account) {
-          walletAddressDiv.textContent = `Wallet: ${account.address}`;
-          updateBalance(account.address);
-        }
-      } catch (error) {
-        alert("Connection failed.");
-        console.error(error);
-      }
-    });
-
-    async function updateBalance(address) {
-      try {
-        const res = await fetch(`https://tonapi.io/v1/accounts/${address}`);
-        const data = await res.json();
-        const tonBalance = data.balance / 1e9;
-        balanceDiv.textContent = `Balance: ${tonBalance.toFixed(3)} TON`;
-      } catch (err) {
-        balanceDiv.textContent = `Balance: Error`;
-        console.error(err);
-      }
+    function updateBalanceDisplay() {
+      document.getElementById("balance").innerText = balance;
     }
 
-    function startGame() {
-      const spins = parseInt(document.getElementById("spin-count").value);
-      sessionStorage.setItem("spinsLeft", spins);
-      lobbySection.style.display = "none";
-      rouletteSection.style.display = "block";
+    function addStars(amount) {
+      balance += amount;
+      updateBalanceDisplay();
     }
 
-    function spinRoulette() {
-      let spinsLeft = parseInt(sessionStorage.getItem("spinsLeft"));
-      if (spinsLeft <= 0) {
-        alert("No spins left!");
-        return;
-      }
-
-      const outcomes = ["🎁 NFT #1", "🎁 NFT #2", "💥 Try Again", "🎁 NFT #3"];
+    function playGame() {
+      const outcomes = ["Вы выиграли ⭐️", "Пусто", "Джекпот ⭐⭐⭐", "Мимо"];
       const result = outcomes[Math.floor(Math.random() * outcomes.length)];
-      document.getElementById("result").textContent = `You got: ${result}`;
+      if (result.includes("⭐")) balance += (result.match(/⭐/g) || []).length;
 
-      spinsLeft--;
-      sessionStorage.setItem("spinsLeft", spinsLeft);
+      document.getElementById("game-result").innerText = result;
+      document.querySelector(".card").style.display = "none";
+      document.getElementById("result-card").style.display = "block";
+      updateBalanceDisplay();
+    }
+
+    function showProfile() {
+      alert(`👤 Профиль\nИмя: ${tg.initDataUnsafe.user.first_name}\nID: ${tg.initDataUnsafe.user.id}\nБаланс: ${balance} ⭐️`);
+    }
+
+    function backToMain() {
+      document.getElementById("result-card").style.display = "none";
+      document.querySelector(".card").style.display = "block";
     }
   </script>
 </body>
 </html>
+
