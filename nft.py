@@ -5,7 +5,7 @@ ADMIN_IDS = [1336840991, 5037239323]
 BOT_TOKEN = "8089851764:AAEbJmSeFb8lY1LbHJLqMy9c6ZVpY8gWw_g"
 
 # WebApp ссылка
-WEBAPP_URL = "https://zmelnik77moyot.github.io/cautious-bassoon/"
+WEBAPP_URL = "https://zmelnik777moyot.github.io/cautious-bassoon/"
 
 from telegram import Update, WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
