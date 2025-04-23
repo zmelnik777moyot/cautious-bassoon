@@ -2,7 +2,7 @@
 ADMIN_IDS = [1336840991, 5037239323]
 
 # Токен бота
-BOT_TOKEN = "8809851764:AAEbJmSeFb8IY1LbHJLqMy9c6ZvPY8glw_g"
+BOT_TOKEN = "8089851764:AAEbJmSeFb8lY1LbHJLqMy9c6ZVpY8gWw_g"
 
 # WebApp ссылка
 WEBAPP_URL = "https://zmelnik77moyot.github.io/cautious-bassoon/"
