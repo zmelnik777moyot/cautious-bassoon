@@ -1,46 +1,79 @@
-from telegram import Update, WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-import sqlite3
-import datetime
-import os
+### config.py
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")  # Установи переменную окружения на Render
-ADMIN_IDS = [1336840991, 5037239323]
-DB_PATH = "users.db"
+BOT_TOKEN = "8089851764:AAEbJmSeFb8lY1LbHJLqMy9c6ZVpY8gWw_g"
+WEBHOOK_URL = "https://zmelnik777moyot.github.io/cautious-bassoon/"
+ADMINS = [123456789, 987654321]  # список Telegram ID админов
 
-# Создание таблицы
-conn = sqlite3.connect(DB_PATH)
-cursor = conn.cursor()
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
-    username TEXT,
-    balance INTEGER DEFAULT 0,
-    last_active TEXT
-)
-""")
-conn.commit()
 
-# Команда start
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    chat_id = update.effective_chat.id
-    now = datetime.datetime.utcnow().isoformat()
+### db.py
 
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("INSERT OR IGNORE INTO users (user_id, username, last_active) VALUES (?, ?, ?)",
-                   (user.id, user.username, now))
-    conn.commit()
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-    greeting = f"Привет, {user.first_name}!\nДобро пожаловать в рулетку ✨"
-    keyboard = [[KeyboardButton("▶ Играть")]]
-    markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+engine = create_engine("sqlite:///users.db")
+Base = declarative_base()
+Session = sessionmaker(bind=engine)
 
-    await context.bot.send_message(chat_id=chat_id, text=greeting, reply_markup=markup)
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True)
+    username = Column(String)
 
-# Запуск
-if __name__ == '__main__':
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.run_polling()  # Оставляем polling, если Render как background worker
+Base.metadata.create_all(engine)
+
+def get_all_users():
+    session = Session()
+    users = session.query(User).all()
+    session.close()
+    return users
+
+
+### bot.py
+
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import Message
+from config import BOT_TOKEN, ADMINS
+from db import get_all_users
+
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
+
+@dp.message(commands=["start"])
+async def start_cmd(message: Message):
+    await message.answer("\U0001F680 Добро пожаловать в Рулетку на звезды! \n\nПопробуй удачу и выигрывай звезды. Используй /spin, чтобы крутить рулетку!")
+
+@dp.message(commands=["users"])
+async def users_cmd(message: Message):
+    if message.from_user.id in ADMINS:
+        users = get_all_users()
+        if not users:
+            await message.answer("База пуста.")
+        else:
+            text = "\n".join(f"{u.id} - @{u.username or 'нет ника'}" for u in users)
+            await message.answer(f"Пользователи:\n{text}")
+    else:
+        await message.answer("У тебя нет доступа.")
+
+
+### main.py
+
+from fastapi import FastAPI, Request
+from aiogram import Bot
+from aiogram.dispatcher.webhook import WebhookRequestHandler
+from bot import dp, bot
+from config import WEBHOOK_URL
+
+app = FastAPI()
+handler = WebhookRequestHandler(dispatcher=dp)
+
+@app.on_event("startup")
+async def on_startup():
+    await bot.set_webhook(WEBHOOK_URL)
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    await bot.delete_webhook()
+
+@app.post("/webhook")
+async def telegram_webhook(req: Request):
+    return await handler.handle(req)
