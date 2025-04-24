@@ -2,11 +2,13 @@ from fastapi import FastAPI, Request
 from aiogram import Bot, Dispatcher
 from aiogram.types import Update
 from config import BOT_TOKEN, WEBHOOK_URL
+from bot import router
 import os
 import uvicorn
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+dp.include_router(router)
 
 app = FastAPI()
 
@@ -25,9 +27,10 @@ async def webhook(request: Request):
     await dp._process_update(bot, update)
     return {"status": "ok"}
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
 @app.get("/")
 async def root():
     return {"status": "ok", "message": "Рулетка живёт 🌟"}
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
