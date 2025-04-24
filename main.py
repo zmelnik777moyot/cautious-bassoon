@@ -28,3 +28,6 @@ async def webhook(request: Request):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "Рулетка живёт 🌟"}
