@@ -78,6 +78,6 @@ if __name__ == "__main__":
     app.run_polling()
 
 async def main():
-    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 8080)))
+    site = web.TCPSite(runner, "0.0.0.0", int(os.getenv("PORT", 10000)))
     await site.start()
-print(f"Listening on port {os.getenv('PORT', 8080)}")
+print(f"Listening on port {os.getenv('PORT', 10000)}")
