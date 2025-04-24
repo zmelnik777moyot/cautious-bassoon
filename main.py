@@ -8,7 +8,7 @@ import uvicorn
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-dp.include_router(router)
+dp.include_router(router)  # ✅ только здесь!
 
 app = FastAPI()
 
@@ -29,7 +29,7 @@ async def webhook(request: Request):
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "message": "Рулетка живёт 🌟"}
+    return {"status": "ok", "message": "бот работает"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
