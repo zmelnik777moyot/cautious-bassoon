@@ -45,3 +45,5 @@
              await message.answer(f\"Пользователи:\n{text}\")
      else:
          await message.answer("У тебя нет доступа.")
+ from aiogram import Router
+router = Router()
