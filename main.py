@@ -8,7 +8,7 @@ import uvicorn
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-dp.include_router(router)  # ✅ только здесь!
+dp.include_router(router)
 
 app = FastAPI()
 
