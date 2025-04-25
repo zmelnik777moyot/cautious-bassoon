@@ -5,7 +5,7 @@ from config import BOT_TOKEN, WEBHOOK_URL
 from bot import router
 
 bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(bot=bot)
 dp.include_router(router)
 
 app = FastAPI()
@@ -27,4 +27,4 @@ async def webhook(request: Request):
 
 @app.get("/")
 async def root():
-    return {"status": "ok", "message": "бот работает"}
+    return {"status": "ok", "message": "Бот работает!"}
