@@ -7,7 +7,7 @@ router = Router()
 
 @router.message(Command("start"))
 async def start_handler(message: types.Message):
-    await message.answer("Добро пожаловать в рулетку на звезды ✨")
+    await message.answer("🚀 Добро пожаловать в рулетку!")
 
 @router.message(Command("users"))
 async def users_handler(message: types.Message):
