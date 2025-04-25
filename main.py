@@ -3,8 +3,6 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Update
 from config import BOT_TOKEN, WEBHOOK_URL
 from bot import router
-import os
-import uvicorn
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -30,7 +28,3 @@ async def webhook(request: Request):
 @app.get("/")
 async def root():
     return {"status": "ok", "message": "бот работает"}
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
