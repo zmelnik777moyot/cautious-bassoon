@@ -1,0 +1,6 @@
+services:
+  - type: static
+    name: roulette-lobby
+    env: static
+    buildCommand: ""
+    staticPublishPath: /
