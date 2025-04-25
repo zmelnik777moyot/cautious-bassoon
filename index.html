@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рулетка звезд</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1e1e2f, #282a36);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .balances {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+    .wheel-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin-top: 30px;
+    }
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 10px solid #ffcc00;
+      background: conic-gradient(
+        #ffd700 0deg 45deg,
+        #ffa500 45deg 90deg,
+        #ffd700 90deg 135deg,
+        #ffa500 135deg 180deg,
+        #ffd700 180deg 225deg,
+        #ffa500 225deg 270deg,
+        #ffd700 270deg 315deg,
+        #ffa500 315deg 360deg
+      );
+      transition: transform 5s ease-out;
+    }
+    .spin-button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background: #ffcc00;
+      border: none;
+      border-radius: 10px;
+      color: black;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .spin-button:hover {
+      background: #ffd700;
+    }
+    .arrow {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 20px solid red;
+    }
+    .notification {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #00ff88;
+      min-height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Рулетка на звезды ✨</h1>
+    <div class="balances">
+      Звезды: <span id="stars">500</span> ✨ | Рубли: <span id="rubles">250</span> ₽
+    </div>
+  </header>
+
+  <div class="wheel-container">
+    <div class="arrow"></div>
+    <div id="wheel" class="wheel"></div>
+  </div>
+
+  <button class="spin-button" onclick="spinWheel()">Крутить колесо</button>
+
+  <div class="notification" id="notification"></div>
+
+  <script>
+    let wheel = document.getElementById('wheel');
+    let starsDisplay = document.getElementById('stars');
+    let notification = document.getElementById('notification');
+    let spinning = false;
+    let currentStars = 500;
+
+    const prizes = [10, 25, 50, 75, 100, 25, 50, 10];
+
+    function spinWheel() {
+      if (spinning) return;
+      spinning = true;
+      notification.textContent = "";
+
+      const fullSpins = 10;
+      const randomSegment = Math.floor(Math.random() * prizes.length);
+      const segmentAngle = 360 / prizes.length;
+      const stopAngle = 360 - (randomSegment * segmentAngle) - (segmentAngle / 2);
+      const rotateTo = fullSpins * 360 + stopAngle;
+
+      wheel.style.transform = `rotate(${rotateTo}deg)`;
+
+      setTimeout(() => {
+        const prize = prizes[randomSegment];
+        currentStars += prize;
+        starsDisplay.textContent = currentStars;
+        notification.textContent = `+${prize} звёзд! ✨`;
+        spinning = false;
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
