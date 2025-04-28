@@ -21,7 +21,7 @@ async def on_shutdown():
     await bot.delete_webhook()
 
 @app.post("/webhook")
-async def telegram_webhook(request: Request):
+async def webhook(request: Request):
     data = await request.json()
     update = Update.model_validate(data)
     await dp._process_update(bot, update)
